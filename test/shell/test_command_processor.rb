@@ -79,4 +79,33 @@ class TestShell::CommandProcessor < Test::Unit::TestCase
     Process.waitall
     File.unlink(path)
   end
+
+  def test_for_each_dir
+    dirs = []
+    @shell.foreach(@tmpdir) do |f|
+      dirs << f
+    end
+    assert_equal(dirs, Dir.foreach(@tmpdir).to_a)
+  end
+
+  def test_for_each_file
+    File.write(@tmpfile, "foo\nbar\n")
+    strs = []
+    @shell.foreach(@tmpfile) do |str|
+      strs << str
+    end
+    assert_equal(strs, ["foo\n", "bar\n"])
+  end
+
+  def test_open_dir
+    dir = @shell.open(@tmpdir)
+    assert_equal(dir.class, Dir)
+    assert_equal(dir.path, Dir.open(@tmpdir).path)
+  end
+
+  def test_open_file
+    file = @shell.open(@tmpfile)
+    assert_equal(file.class, File)
+    assert_equal(file.path, File.open(@tmpfile).path)
+  end
 end
